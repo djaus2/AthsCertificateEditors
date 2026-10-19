@@ -5,8 +5,10 @@ A collection of editors and small tooling used to create and manage assets for t
 Repository it supports
 
 ----------------------
-This repository provides editors and helper utilities consumed by:
+This repository provides editors that produce json files, as Certificate Metadata, consumed by:
 <https://github.com/djaus2/AthleticsCertificateMaker>
+
+> Next step will be to move the certificate generation to WPF.
 
 Purpose
 
