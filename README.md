@@ -60,12 +60,12 @@ This solution contains five small editor applications. Brief descriptions and wh
     - Run: set GenerateCertificateAppLatest as the startup project in Visual Studio.
       - ***Normally just use this version of the app.***
 
-  - [GenerateCertificateAppOrig](GenerateCertificateAppOrig\GenerateCertificateAppOrig.csproj)
+  - `GenerateCertificateAppOr`
     - Original first version of the certificate generator app.
     - Run: set GenerateCertificateAppOrig as the startup project in Visual Studio.
       - This version now also fails **Smart App Control**!
 
-  - [GenerateCertificateApp](GenerateCertificateApp\GenerateCertificateApp.csproj)
+  - `GenerateCertificateApp`
     - Equivalent to GenerateCertificateAppOrig, except this project sets `<UseAppHost>false</UseAppHost>`.
     - With UseAppHost disabled, the app runs from the DLL host instead of a generated EXE.
     - This avoids **Smart App Control**/Windows Application Control blocking with: ***"An Application Control policy has blocked this file."
