@@ -1,8 +1,8 @@
 {
-  "CertificateTemplateFile": "DoncasterCertificateTemplate2.png",
+  "CertificateTemplateFile": "CertificateTemplate.png",
   "ParticipantCsvFile": "results.csv",
   "ParticipantCsvDelimiter": "Auto",
-  "SendUsingAccount": "djaus@sportronics.com.au",
+  "SendUsingAccount": "someone@somewhere.com.au",
   "DefaultTextColor": "Red",
   "DefaultLabelColor": "LightGreen",
   "DefaultValueColor": "Yellow",

@@ -1,9 +1,12 @@
 <Solution>
   <Folder Name="/Solution Items/">
+    <File Path="../../../../../temp/AthleticsCertificateMaker/CertificateTemplate.png" />
     <File Path="CertificateText.json" />
     <File Path="README.md" />
   </Folder>
   <Project Path="FoldingEditor/FoldingEditor.csproj" />
-  <Project Path="FormEdit/FormEditCert.csproj" />
+  <Project Path="FormEdit/FormEditCert.csproj" />`r`n  <Project Path="GenerateCertificateApp/GenerateCertificateApp.csproj" />
+  <Project Path="GenerateCertificateAppOrig/GenerateCertificateAppOrig.csproj" />
   <Project Path="TxtEditor/TxtEditor.csproj" />
 </Solution>
+

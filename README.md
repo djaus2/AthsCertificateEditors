@@ -17,6 +17,8 @@ Purpose
 - This UI app will read in a existing config file as json, edit and save, Can also create a new one.
 - Produce consistent assets and configuration files used by AthleticsCertificateMaker.
 
+> ***Latest* Two apps have been added here that consume the generated json setup** as per the `GenerateCertificate` Powershell script in teh original project.
+
 Key features
 
 -----------
@@ -36,7 +38,7 @@ Requirements
 Included apps
 -----------
 
-This solution contains three small editor applications. Brief descriptions and where to run them follow.
+This solution contains five small editor applications. Brief descriptions and where to run them follow.
 
 - TxtEditor (TxtEditor\TxtEditor.csproj)
   - A simple raw text (JSON) editor for the certificate configuration. Features load, save, pretty-format and basic validation. Useful when you want to edit the JSON directly or start from a default document.
@@ -49,6 +51,17 @@ This solution contains three small editor applications. Brief descriptions and w
 - FoldingEditor (FoldingEditor\FoldingEditor.csproj)
   - A code-style JSON editor using AvalonEdit with syntax highlighting and folding. Good for large documents where folding and code-style editing help navigation. Supports load, save, pretty-format and JSON validation.
   - Run: set FoldingEditor as the startup project in Visual Studio or dotnet run --project FoldingEditor\FoldingEditor.csproj
+
+- GenerateCertificateAppOrig (GenerateCertificateAppOrig\GenerateCertificateAppOrig.csproj)
+  - Original first version of the certificate generator app.
+  - Run: set GenerateCertificateAppOrig as the startup project in Visual Studio.
+    - Normally just use this version of the app.
+
+- GenerateCertificateApp (GenerateCertificateApp\GenerateCertificateApp.csproj)
+  - Equivalent to GenerateCertificateAppOrig, except this project sets `<UseAppHost>false</UseAppHost>`.
+  - With UseAppHost disabled, the app runs from the DLL host instead of a generated EXE.
+  - This avoids **Smart App Control**/Windows Application Control blocking with: ***"An Application Control policy has blocked this file."
+  - Run: set GenerateCertificateApp as the startup project in Visual Studio.
 
 Getting started
 
@@ -67,8 +80,15 @@ Getting started
    - CLI: dotnet build
 
 4. Run an editor:
+   - 3 to choose from but ``FormEditCert is probably best.
    - Set the desired editor project as startup in Visual Studio and run.
    - Or run from the CLI: dotnet run --project <path-to-editor-project>
+   - Load the same json file for editing or create a new one.
+5. Run GenerateCerticateAppOrig
+   - Load the json file created or edited in the previous step.
+   - Adjust setting and generate the sample certicates.
+      - Just use Outlook Save option until ready to send.
+        - Nb Need Classic Outlook (16)        - Nb Need Classic Outlook (16)
 
 Usage
 -----
