@@ -54,17 +54,17 @@ This solution contains five small editor applications. Brief descriptions and wh
   - A code-style JSON editor using AvalonEdit with syntax highlighting and folding. Good for large documents where folding and code-style editing help navigation. Supports load, save, pretty-format and JSON validation.
   - Run: set FoldingEditor as the startup project in Visual Studio or dotnet run --project FoldingEditor\FoldingEditor.csproj
 - `GenerateCertificateApp`
-  - GenerateCertificateAppLatest (GenerateCertificateAppLatest\GenerateCertificateAppLatest.csproj)
+  - G[enerateCertificateAppLatest](GenerateCertificateAppLatest\GenerateCertificateAppLatest.csproj)
     - Original first version of the certificate generator app.
     - Run: set GenerateCertificateAppLatest as the startup project in Visual Studio.
       - ***Normally just use this version of the app.***
 
-  - GenerateCertificateAppOrig (GenerateCertificateAppOrig\GenerateCertificateAppOrig.csproj)
+  - [GenerateCertificateAppOrig](GenerateCertificateAppOrig\GenerateCertificateAppOrig.csproj)
     - Original first version of the certificate generator app.
     - Run: set GenerateCertificateAppOrig as the startup project in Visual Studio.
       - This version now also fails **Smart App Control**!
 
-  - GenerateCertificateApp (GenerateCertificateApp\GenerateCertificateApp.csproj)
+  - [GenerateCertificateApp](GenerateCertificateApp\GenerateCertificateApp.csproj)
     - Equivalent to GenerateCertificateAppOrig, except this project sets `<UseAppHost>false</UseAppHost>`.
     - With UseAppHost disabled, the app runs from the DLL host instead of a generated EXE.
     - This avoids **Smart App Control**/Windows Application Control blocking with: ***"An Application Control policy has blocked this file."
