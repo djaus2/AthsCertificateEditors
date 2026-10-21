@@ -10,7 +10,7 @@ Repository it supports
 This repository provides editors that produce json files, as Certificate Metadata, consumed by:
 <https://github.com/djaus2/AthleticsCertificateMaker>
 
-> **Now Done!:** Next step will be to move the certificate generation to WPF.
+> **Now Done!:** The certificate generation now available as WPF here.
 
 Purpose
 
