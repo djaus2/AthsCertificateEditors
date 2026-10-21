@@ -54,7 +54,7 @@ This solution contains five small editor applications. Brief descriptions and wh
   - A code-style JSON editor using AvalonEdit with syntax highlighting and folding. Good for large documents where folding and code-style editing help navigation. Supports load, save, pretty-format and JSON validation.
   - Run: set FoldingEditor as the startup project in Visual Studio or dotnet run --project FoldingEditor\FoldingEditor.csproj
 - `GenerateCertificateApp`
-  - G[enerateCertificateAppLatest](GenerateCertificateAppLatest\GenerateCertificateAppLatest.csproj)
+  - [GenerateCertificateAppLatest](GenerateCertificateAppLatest\GenerateCertificateAppLatest.csproj)
     - Original first version of the certificate generator app.
     - Run: set GenerateCertificateAppLatest as the startup project in Visual Studio.
       - ***Normally just use this version of the app.***
