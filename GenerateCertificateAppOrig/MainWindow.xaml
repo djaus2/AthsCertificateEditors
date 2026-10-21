@@ -9,18 +9,20 @@
 				<MenuItem Header="Select _Results..." Click="OpenResultsMenuItem_Click" />
                 <MenuItem Header="Select Image _Template..." Click="SelectTemplateMenuItem_Click" />
                 <MenuItem Header="_Save Settings to JSON" Click="SaveSettingsToJsonMenuItem_Click" />
+                <MenuItem Header="_Clear App Settings" Click="ClearAppSettingsMenuItem_Click" />
 
                 <Separator />
                 <MenuItem Header="E_xit" Click="ExitMenuItem_Click" />
             </MenuItem>
-            <MenuItem Header="_Certificates">
-                <MenuItem Header="_Build" Click="BuildCertificatesMenuItem_Click" />
-                <MenuItem Header="Build and Se_nd" Click="BuildAndSendCertificatesMenuItem_Click" />
+            <MenuItem x:Name="CertificatesHeader" Header="_Certificates" IsEnabled="False">
+                <MenuItem Header="_Generate (Only)" Click="BuildCertificatesMenuItem_Click" />
+                <MenuItem Header="Generate and Se_nd (via Outlook 16)" Click="BuildAndSendCertificatesMenuItem_Click" />
                 <Separator />
-				<MenuItem Header="Build and _Save to Drafts" Click="BuildAndSaveCertificatesMenuItem_Click" />
+				<MenuItem Header="Generate and _Save to (Outlook 16)/Drafts" Click="BuildAndSaveCertificatesMenuItem_Click" />
 				<MenuItem Header="_Send Drafts" Click="SendDraftsMenuItem_Click" />
                 <MenuItem Header="_Clear Drafts" Click="ClearDraftsMenuItem_Click" />
 				<Separator />
+                <MenuItem Header="_Browse Generated Certificates" Click="BrowseGeneratedCertificatesMenuItem_Click" />
 				<MenuItem Header="_Clear built Certificates etc." Click="CleanMenuItem_Click" />
             </MenuItem>
             <MenuItem Header="_Log">
@@ -49,11 +51,10 @@
             <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="Results CSV/TSV:" Margin="0,0,8,8" />
             <TextBox Name="ResultsPathTextBox" Grid.Row="1" Grid.Column="1" IsReadOnly="True" Margin="0,0,0,8" />
 
-            <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Text="Template:" Margin="0,0,8,8" />
+            <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Text="Background Iamge Template:" Margin="0,0,8,8" />
             <TextBox Name="TemplatePathTextBox" Grid.Row="2" Grid.Column="1" IsReadOnly="True" Margin="0,0,0,8" />
 
             <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,8,0,8">
-                <Button Name="GenerateButton" Content="Generate Certificates" Width="180" Height="30" Click="GenerateButton_Click" />
                 <TextBlock Name="SummaryTextBlock" Margin="12,7,0,0" VerticalAlignment="Center" />
             </StackPanel>
 

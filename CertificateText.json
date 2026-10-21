@@ -2,7 +2,7 @@
   "CertificateTemplateFile": "CertificateTemplate.png",
   "ParticipantCsvFile": "results.csv",
   "ParticipantCsvDelimiter": "Auto",
-  "SendUsingAccount": "someone@somewhere.com.au",
+  "SendUsingAccount": "onehour@somewhere.com.au",
   "DefaultTextColor": "Red",
   "DefaultLabelColor": "LightGreen",
   "DefaultValueColor": "Yellow",
@@ -24,7 +24,7 @@
     },
     {
       "Name": "Location",
-      "Text": "Doncaster Athletics Centre",
+      "Text": "Somewhere Athletics Centre",
       "Color": "White",
       "Font": "Arial Narrow",
       "Size": 38,
@@ -33,7 +33,7 @@
     },
     {
       "Name": "Host",
-      "Text": "Doncaster Masters Athletics",
+      "Text": "Somewhere Masters Athletics",
       "Color": "White",
       "Font": "Arial Narrow",
       "Size": 38,

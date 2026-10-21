@@ -1,4 +1,5 @@
 using System.IO;
+using System.Diagnostics;
 using System.Text.Json;
 using System.Windows;
 using Microsoft.Win32;
@@ -126,6 +127,36 @@ public partial class MainWindow : Window
         }
     }
 
+    private void ClearAppSettingsMenuItem_Click(object sender, RoutedEventArgs e)
+    {
+        var confirmation = MessageBox.Show(
+            this,
+            "Clear saved app settings (last used JSON, results and template paths)?",
+            "Clear App Settings",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question);
+
+        if (confirmation != MessageBoxResult.Yes)
+        {
+            return;
+        }
+
+        _appSettingsService.Save(new AppRuntimeSettings());
+
+        _settingsPath = string.Empty;
+        _resultsPath = string.Empty;
+        _templatePath = string.Empty;
+        _config = null;
+
+        SettingsPathTextBox.Text = string.Empty;
+        ResultsPathTextBox.Text = string.Empty;
+        TemplatePathTextBox.Text = string.Empty;
+        CertificatesHeader.IsEnabled = false;
+
+        SummaryTextBlock.Text = "App settings cleared";
+        Log("App runtime settings cleared.");
+    }
+
     private void ExitMenuItem_Click(object sender, RoutedEventArgs e)
         => Close();
 
@@ -207,6 +238,31 @@ public partial class MainWindow : Window
         SummaryTextBlock.Text = "Log cleared";
     }
 
+    private void BrowseGeneratedCertificatesMenuItem_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var outputFolder = Path.Combine(GetRootFolder(), "Output", "PNG");
+            if (!Directory.Exists(outputFolder))
+            {
+                throw new DirectoryNotFoundException($"Generated certificates folder not found: {outputFolder}");
+            }
+
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = outputFolder,
+                UseShellExecute = true
+            });
+
+            Log($"Opened generated certificates folder: {outputFolder}");
+        }
+        catch (Exception ex)
+        {
+            Log($"ERROR: {ex.Message}");
+            MessageBox.Show(this, ex.Message, "Browse generated certificates failed", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
     private void CleanMenuItem_Click(object sender, RoutedEventArgs e)
     {
         try
@@ -260,7 +316,6 @@ public partial class MainWindow : Window
                 throw new FileNotFoundException("Template image file not found.", _templatePath);
             }
 
-            GenerateButton.IsEnabled = false;
             SummaryTextBlock.Text = mode switch
             {
                 CertificateRunMode.BuildAndSave => "Generating and saving drafts...",
@@ -321,7 +376,8 @@ public partial class MainWindow : Window
         }
         finally
         {
-            GenerateButton.IsEnabled = true;
+            //GenerateButton.IsEnabled = true;
+            
         }
     }
 
@@ -370,6 +426,7 @@ public partial class MainWindow : Window
         SettingsPathTextBox.Text = _settingsPath;
         ResultsPathTextBox.Text = _resultsPath;
         TemplatePathTextBox.Text = _templatePath;
+        CertificatesHeader.IsEnabled = true;
     }
 
     private void PersistAppSettings()

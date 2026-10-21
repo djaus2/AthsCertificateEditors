@@ -164,7 +164,24 @@ public static class OutlookEmailService
                         }
                     }
 
-                    mail.Send();
+                    try
+                    {
+                        mail.Send();
+                    }
+                    catch (Exception ex) when (IsInlineResponseError(ex))
+                    {
+                        log("Draft is inline-response; rebuilding message and retrying send.");
+                        SendUsingRebuiltMail(outlook, mail, sendAccount, log);
+
+                        try
+                        {
+                            mail.Delete();
+                        }
+                        catch
+                        {
+                        }
+                    }
+
                     sent++;
                 }
                 catch (Exception ex)
@@ -265,5 +282,71 @@ public static class OutlookEmailService
         {
             return false;
         }
+    }
+
+    private static bool IsInlineResponseError(Exception ex)
+        => ex.Message?.IndexOf("inline response", StringComparison.OrdinalIgnoreCase) >= 0;
+
+    private static void SendUsingRebuiltMail(dynamic outlook, dynamic sourceMail, dynamic? sendAccount, Action<string> log)
+    {
+        dynamic newMail = outlook.CreateItem(0);
+
+        if (sendAccount is not null)
+        {
+            try
+            {
+                newMail.SendUsingAccount = sendAccount;
+            }
+            catch (Exception accountEx)
+            {
+                log($"Rebuilt draft account override skipped: {accountEx.Message}");
+            }
+        }
+
+        try { newMail.To = sourceMail.To; } catch { }
+        try { newMail.CC = sourceMail.CC; } catch { }
+        try { newMail.BCC = sourceMail.BCC; } catch { }
+        try { newMail.Subject = sourceMail.Subject; } catch { }
+
+        var bodySet = false;
+        try
+        {
+            newMail.HTMLBody = sourceMail.HTMLBody;
+            bodySet = true;
+        }
+        catch
+        {
+        }
+
+        if (!bodySet)
+        {
+            try { newMail.Body = sourceMail.Body; } catch { }
+        }
+
+        try
+        {
+            dynamic attachments = sourceMail.Attachments;
+            var count = (int)attachments.Count;
+            for (var ai = 1; ai <= count; ai++)
+            {
+                try
+                {
+                    dynamic attachment = attachments.Item(ai);
+                    var path = (string?)attachment.PathName;
+                    if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
+                    {
+                        newMail.Attachments.Add(path);
+                    }
+                }
+                catch
+                {
+                }
+            }
+        }
+        catch
+        {
+        }
+
+        newMail.Send();
     }
 }
