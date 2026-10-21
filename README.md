@@ -2,6 +2,8 @@
 
 A collection of editors and small tooling used to create and manage assets for the AthleticsCertificateMaker project.
 
+> The ReadMe needs a redraft.
+
 Repository it supports
 
 ----------------------
