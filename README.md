@@ -2,13 +2,15 @@
 
 A collection of editors and small tooling used to create and manage assets for the AthleticsCertificateMaker project.
 
+> The ReadMe needs a redraft.
+
 Repository it supports
 
 ----------------------
 This repository provides editors that produce json files, as Certificate Metadata, consumed by:
 <https://github.com/djaus2/AthleticsCertificateMaker>
 
-> **Now Done!:** Next step will be to move the certificate generation to WPF.
+> **Now Done!:** The certificate generation now available as WPF here.
 
 Purpose
 
@@ -19,7 +21,7 @@ Purpose
 - This UI app will read in a existing config file as json, edit and save, Can also create a new one.
 - Produce consistent assets and configuration files used by AthleticsCertificateMaker.
 
-> ***Latest* Two apps have been added here that consume the generated json setup** as per the `GenerateCertificate` Powershell script in teh original project.
+> ***Latest* THREE apps have been added here that consume the generated json setup** as per the `GenerateCertificate` Powershell script in the original project.
 
 Key features
 
@@ -53,17 +55,23 @@ This solution contains five small editor applications. Brief descriptions and wh
 - FoldingEditor (FoldingEditor\FoldingEditor.csproj)
   - A code-style JSON editor using AvalonEdit with syntax highlighting and folding. Good for large documents where folding and code-style editing help navigation. Supports load, save, pretty-format and JSON validation.
   - Run: set FoldingEditor as the startup project in Visual Studio or dotnet run --project FoldingEditor\FoldingEditor.csproj
+- `GenerateCertificateApp`
+- 
+  - [GenerateCertificateAppLatest](https://github.com/djaus2/AthsCertificateEditors/tree/master/GenerateCertificateAppLatest)
+    - Original first version of the certificate generator app.
+    - Run: set GenerateCertificateAppLatest as the startup project in Visual Studio.
+      - ***Normally just use this version of the app.***
 
-- GenerateCertificateAppOrig (GenerateCertificateAppOrig\GenerateCertificateAppOrig.csproj)
-  - Original first version of the certificate generator app.
-  - Run: set GenerateCertificateAppOrig as the startup project in Visual Studio.
-    - Normally just use this version of the app.
+  - `GenerateCertificateAppOr`
+    - Original first version of the certificate generator app.
+    - Run: set GenerateCertificateAppOrig as the startup project in Visual Studio.
+      - This version now also fails **Smart App Control**!
 
-- GenerateCertificateApp (GenerateCertificateApp\GenerateCertificateApp.csproj)
-  - Equivalent to GenerateCertificateAppOrig, except this project sets `<UseAppHost>false</UseAppHost>`.
-  - With UseAppHost disabled, the app runs from the DLL host instead of a generated EXE.
-  - This avoids **Smart App Control**/Windows Application Control blocking with: ***"An Application Control policy has blocked this file."
-  - Run: set GenerateCertificateApp as the startup project in Visual Studio.
+  - `GenerateCertificateApp`
+    - Equivalent to GenerateCertificateAppOrig, except this project sets `<UseAppHost>false</UseAppHost>`.
+    - With UseAppHost disabled, the app runs from the DLL host instead of a generated EXE.
+    - This avoids **Smart App Control**/Windows Application Control blocking with: ***"An Application Control policy has blocked this file."
+    - Run: set GenerateCertificateApp as the startup project in Visual Studio.
 
 Getting started
 
