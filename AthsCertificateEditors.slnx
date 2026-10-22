@@ -5,11 +5,9 @@
     <File Path="README.md" />
     <File Path="results.csv" />
   </Folder>`r`n  
-  <Project Path="FoldingEditor/FoldingEditor.csproj" />
-  <Project Path="FormEdit/FormEditCert.csproj" />
-  <Project Path="GenerateCertificateApp/GenerateCertificateApp.csproj" />
-  <Project Path="GenerateCertificateAppLatest/GenerateCertificateAppLatest.csproj" />
-  <Project Path="GenerateCertificateAppOrig/GenerateCertificateAppOrig.csproj" />
-  <Project Path="TxtEditor/TxtEditor.csproj" />
+  <Project Path="EditJson/FoldingEditor/FoldingEditor.csproj" />
+  <Project Path="EditJson/FormEdit/FormEditCert.csproj" />
+  <Project Path="EditJson/TxtEditor/TxtEditor.csproj" />
+  <Project Path="GenerateCertificates/GenerateCertificateAppLatest/GenerateCertificateAppLatest.csproj" />
 </Solution>
 
