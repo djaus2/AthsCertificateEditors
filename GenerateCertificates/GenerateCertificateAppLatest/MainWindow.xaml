@@ -12,7 +12,7 @@
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_File">
-                <MenuItem Header="_Get Settings from JSON" Click="SettingsMenuItem_Click" />
+                <MenuItem Header="_Get Settings from JSON(or Reload)" Click="SettingsMenuItem_Click" />
 				<MenuItem Header="Select _Results..." Click="OpenResultsMenuItem_Click" />
                 <MenuItem Header="Select Image _Template..." Click="SelectTemplateMenuItem_Click" />
                 <MenuItem Header="_Save Settings to JSON" Click="SaveSettingsToJsonMenuItem_Click" />
@@ -21,7 +21,7 @@
                 <Separator />
                 <MenuItem Header="E_xit" Click="ExitMenuItem_Click" />
             </MenuItem>
-            <MenuItem Header="Edit" SubmenuOpened="EditMenu_SubmenuOpened">
+            <MenuItem x:Name="EditMenu" Header="Edit" SubmenuOpened="EditMenu_SubmenuOpened">
                 <MenuItem Header="Select Certificate" Click="SelectGeneratedCertificate_Click" />
                 <MenuItem x:Name="SelectResultMenuItem" Header="Select Result" Click="SelectResult_Click" />
             </MenuItem>

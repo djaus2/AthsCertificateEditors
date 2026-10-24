@@ -35,6 +35,8 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         InitializeDefaults();
+
+        UpdateSettingsDependentMenusState();
     }
 
     private void InitializeDefaults()
@@ -311,7 +313,7 @@ public partial class MainWindow : Window
     {
         try
         {
-            if (_config is null)
+            if (!EnsureSettingsLoadedInMemory())
             {
                 throw new InvalidOperationException("Settings are not loaded. Use File > Get Settings from JSON.");
             }
@@ -428,6 +430,23 @@ public partial class MainWindow : Window
         Log($"Settings loaded: {_settingsPath}");
         Log($"Configured ParticipantCsvFile: {_config.ParticipantCsvFile}");
         Log($"Configured template: {_config.CertificateTemplateFile}");
+
+        UpdateSettingsDependentMenusState();
+    }
+
+    private void UpdateSettingsDependentMenusState()
+    {
+        var settingsLoaded = _config != null;
+
+        if (CertificatesHeader != null)
+        {
+            CertificatesHeader.IsEnabled = settingsLoaded;
+        }
+
+        if (EditMenu != null)
+        {
+            EditMenu.IsEnabled = settingsLoaded;
+        }
     }
 
     private void UpdatePathTextBoxes()
@@ -748,7 +767,37 @@ public partial class MainWindow : Window
                 return;
             }
 
-            var viewer = new CertificateViewerWindow(generatedPath)
+            var selectedResult = resultPicker.SelectedResult;
+            var selectedHeading = selectedSection.Heading;
+
+            var viewer = new CertificateViewerWindow(
+                generatedPath,
+                () =>
+                {
+                    var generatedAfterNudge = DateTime.UtcNow;
+                    var tempSingleResultsPathNudge = CreateSingleResultTempFile(resultsFilePath, selectedResult, selectedHeading);
+                    try
+                    {
+                        RunCertificateBuild(CertificateRunMode.BuildOnly, tempSingleResultsPathNudge);
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            if (File.Exists(tempSingleResultsPathNudge))
+                            {
+                                File.Delete(tempSingleResultsPathNudge);
+                            }
+                        }
+                        catch
+                        {
+                        }
+                    }
+
+                    var rootFolderNudge = Path.GetDirectoryName(_settingsPath) ?? Environment.CurrentDirectory;
+                    var pngDirNudge = Path.Combine(rootFolderNudge, "Output", "PNG");
+                    return FindNewestGeneratedCertificate(pngDirNudge, generatedAfterNudge);
+                })
             {
                 Owner = this
             };
@@ -756,6 +805,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
+            Log($"Select Result ERROR: {ex}");
             MessageBox.Show($"Could not select/generate certificate. {ex.Message}", "Select Result", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
@@ -885,5 +935,324 @@ public partial class MainWindow : Window
         }
 
         return line.Contains(",") || line.Contains("\t");
+    }
+
+    private bool EnsureSettingsLoadedInMemory()
+    {
+        if (_config != null)
+        {
+            return true;
+        }
+
+        var settingsPath = _settingsPath;
+
+        // Fallback to UI textbox if available.
+        if (string.IsNullOrWhiteSpace(settingsPath) && SettingsPathTextBox != null)
+        {
+            settingsPath = SettingsPathTextBox.Text?.Trim();
+        }
+
+        if (string.IsNullOrWhiteSpace(settingsPath) || !File.Exists(settingsPath))
+        {
+            return false;
+        }
+
+        LoadSettings(settingsPath);
+        return _config != null;
+    }
+
+    public bool NudgeStandardFieldValueY(string fieldName, int delta)
+    {
+        if (_config == null)
+        {
+            Log("Nudge skipped: settings not loaded in memory.");
+            return false;
+        }
+
+        static string Nk(string s)
+            => new string((s ?? string.Empty).Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant();
+
+        var configType = _config.GetType();
+        var certificateFields = configType
+            .GetProperty("CertificateFields", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            ?.GetValue(_config);
+
+        if (certificateFields == null)
+        {
+            Log("Nudge failed: CertificateFields not found in _config.");
+            return false;
+        }
+
+        object? standardSection = null;
+
+        if (certificateFields is System.Collections.IDictionary dict)
+        {
+            foreach (var key in dict.Keys)
+            {
+                if (key == null)
+                {
+                    continue;
+                }
+
+                if (Nk(key.ToString() ?? string.Empty) == "standard")
+                {
+                    standardSection = dict[key];
+                    break;
+                }
+            }
+        }
+
+        standardSection ??= certificateFields.GetType()
+            .GetProperty("Standard", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            ?.GetValue(certificateFields);
+
+        if (standardSection is not System.Collections.IEnumerable rows)
+        {
+            Log("Nudge failed: CertificateFields.Standard section not found.");
+            return false;
+        }
+
+        foreach (var row in rows)
+        {
+            if (row == null)
+            {
+                continue;
+            }
+
+            var rowType = row.GetType();
+            var nameProp = rowType.GetProperty("Name", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var valueYProp = rowType.GetProperty("ValueY", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+            if (nameProp == null || valueYProp == null || !valueYProp.CanRead || !valueYProp.CanWrite)
+            {
+                continue;
+            }
+
+            var rowName = nameProp.GetValue(row)?.ToString() ?? string.Empty;
+            if (!string.Equals(rowName, fieldName, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            var current = Convert.ToDouble(valueYProp.GetValue(row) ?? 0d, System.Globalization.CultureInfo.InvariantCulture);
+            var updated = current + delta;
+
+            var targetType = Nullable.GetUnderlyingType(valueYProp.PropertyType) ?? valueYProp.PropertyType;
+            object converted = targetType == typeof(int)
+                ? Convert.ToInt32(Math.Round(updated), System.Globalization.CultureInfo.InvariantCulture)
+                : targetType == typeof(float)
+                    ? Convert.ToSingle(updated, System.Globalization.CultureInfo.InvariantCulture)
+                    : targetType == typeof(decimal)
+                        ? Convert.ToDecimal(updated, System.Globalization.CultureInfo.InvariantCulture)
+                        : Convert.ToDouble(updated, System.Globalization.CultureInfo.InvariantCulture);
+
+            valueYProp.SetValue(row, converted);
+            Log($"Nudged {fieldName}.ValueY: {current} -> {updated}");
+            return true;
+        }
+
+        Log($"Nudge failed: field '{fieldName}' not found in CertificateFields.Standard.");
+        return false;
+    }
+
+    public double? NudgeStandardFieldValueY(string fieldName)
+    {
+        if (_config == null)
+        {
+            return null;
+        }
+
+        static string Nk(string s)
+            => new string((s ?? string.Empty).Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant();
+
+        var certificateFields = _config.GetType()
+            .GetProperty("CertificateFields", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            ?.GetValue(_config);
+
+        if (certificateFields == null)
+        {
+            return null;
+        }
+
+        object? standardSection = null;
+
+        if (certificateFields is System.Collections.IDictionary dict)
+        {
+            foreach (var key in dict.Keys)
+            {
+                if (key == null)
+                {
+                    continue;
+                }
+
+                if (Nk(key.ToString() ?? string.Empty) == "standard")
+                {
+                    standardSection = dict[key];
+                    break;
+                }
+            }
+        }
+
+        standardSection ??= certificateFields.GetType()
+            .GetProperty("Standard", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            ?.GetValue(certificateFields);
+
+        if (standardSection is not System.Collections.IEnumerable rows)
+        {
+            return null;
+        }
+
+        foreach (var row in rows)
+        {
+            if (row == null)
+            {
+                continue;
+            }
+
+            var rowType = row.GetType();
+            var nameProp = rowType.GetProperty("Name", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var valueYProp = rowType.GetProperty("ValueY", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+            if (nameProp == null || valueYProp == null || !valueYProp.CanRead)
+            {
+                continue;
+            }
+
+            var rowName = nameProp.GetValue(row)?.ToString() ?? string.Empty;
+            if (!string.Equals(rowName, fieldName, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            return Convert.ToDouble(valueYProp.GetValue(row) ?? 0d, System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        return null;
+    }
+
+    public void LogFromUi(string message)
+    {
+        Log(message);
+    }
+
+    public double? GetStandardFieldY(string targetKey)
+    {
+        if (_config == null)
+        {
+            return null;
+        }
+
+        ParseTargetKey(targetKey, out var fieldName, out var yPropertyName);
+
+        var row = FindStandardRow(fieldName);
+        if (row == null)
+        {
+            return null;
+        }
+
+        var yProp = row.GetType().GetProperty(yPropertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        if (yProp == null || !yProp.CanRead)
+        {
+            return null;
+        }
+
+        return Convert.ToDouble(yProp.GetValue(row) ?? 0d, System.Globalization.CultureInfo.InvariantCulture);
+    }
+
+    public bool NudgeStandardFieldY(string targetKey, int delta)
+    {
+        if (_config == null)
+        {
+            Log("Nudge skipped: settings not loaded in memory.");
+            return false;
+        }
+
+        ParseTargetKey(targetKey, out var fieldName, out var yPropertyName);
+
+        var row = FindStandardRow(fieldName);
+        if (row == null)
+        {
+            Log($"Nudge failed: field '{fieldName}' not found in CertificateFields.Standard.");
+            return false;
+        }
+
+        var yProp = row.GetType().GetProperty(yPropertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        if (yProp == null || !yProp.CanRead || !yProp.CanWrite)
+        {
+            Log($"Nudge failed: property '{yPropertyName}' not found/writable for '{fieldName}'.");
+            return false;
+        }
+
+        var current = Convert.ToDouble(yProp.GetValue(row) ?? 0d, System.Globalization.CultureInfo.InvariantCulture);
+        var updated = current + delta;
+
+        var targetType = Nullable.GetUnderlyingType(yProp.PropertyType) ?? yProp.PropertyType;
+        object converted = targetType == typeof(int)
+            ? Convert.ToInt32(Math.Round(updated), System.Globalization.CultureInfo.InvariantCulture)
+            : targetType == typeof(float)
+                ? Convert.ToSingle(updated, System.Globalization.CultureInfo.InvariantCulture)
+                : targetType == typeof(decimal)
+                    ? Convert.ToDecimal(updated, System.Globalization.CultureInfo.InvariantCulture)
+                    : Convert.ToDouble(updated, System.Globalization.CultureInfo.InvariantCulture);
+
+        yProp.SetValue(row, converted);
+        Log($"Nudged {fieldName}.{yPropertyName}: {current} -> {updated}");
+        return true;
+    }
+
+    private object? FindStandardRow(string fieldName)
+    {
+        static string Nk(string s) => new string((s ?? string.Empty).Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant();
+
+        var certificateFields = _config?.GetType()
+            .GetProperty("CertificateFields", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            ?.GetValue(_config!);
+
+        if (certificateFields == null)
+        {
+            return null;
+        }
+
+        object? standardSection = null;
+        if (certificateFields is System.Collections.IDictionary dict)
+        {
+            foreach (var key in dict.Keys)
+            {
+                if (key != null && Nk(key.ToString() ?? string.Empty) == "standard")
+                {
+                    standardSection = dict[key];
+                    break;
+                }
+            }
+        }
+
+        standardSection ??= certificateFields.GetType()
+            .GetProperty("Standard", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            ?.GetValue(certificateFields);
+
+        if (standardSection is not System.Collections.IEnumerable rows)
+        {
+            return null;
+        }
+
+        foreach (var row in rows)
+        {
+            if (row == null) continue;
+            var nameProp = row.GetType().GetProperty("Name", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var rowName = nameProp?.GetValue(row)?.ToString() ?? string.Empty;
+            if (string.Equals(rowName, fieldName, StringComparison.OrdinalIgnoreCase))
+            {
+                return row;
+            }
+        }
+
+        return null;
+    }
+
+    private static void ParseTargetKey(string targetKey, out string fieldName, out string yPropertyName)
+    {
+        var parts = (targetKey ?? string.Empty).Split('.', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        fieldName = parts.Length > 0 ? parts[0] : "Name";
+        yPropertyName = parts.Length > 1 ? parts[1] : "ValueY";
     }
 }

@@ -6,8 +6,6 @@
   "DefaultTextColor": "Red",
   "DefaultLabelColor": "LightGreen",
   "DefaultValueColor": "Yellow",
-  "DefaultLabelTextSize": 70,
-  "DefaultDataTextSize": 90,
   "CertificateSmoothingMode": "HighQuality",
   "CertificateTextRenderingHint": "AntiAliasGridFit",
   "ShowLocation": false,
@@ -55,6 +53,7 @@
       {
         "Name": "Name",
         "Label": "Name:",
+        "Suffix": null,
         "LabelFont": "Arial",
         "LabelSize": 70,
         "LabelStyle": "Bold",
@@ -74,18 +73,19 @@
         "LabelSize": 70,
         "LabelStyle": "Bold",
         "LabelColor": "LightGreen",
-        "LabelY": 1100,
+        "LabelY": 1250,
         "ValueFont": "Arial",
         "ValueSize": 90,
         "ValueStyle": "Regular",
         "ValueColor": "Yellow",
-        "ValueY": 1200
+        "ValueY": 1350
       }
     ],
     "Time": [
       {
         "Name": "Name",
         "Label": "Name",
+        "Suffix": null,
         "LabelFont": "Arial",
         "LabelSize": 70,
         "LabelStyle": "Bold",
@@ -115,6 +115,7 @@
       {
         "Name": "Time",
         "Label": "Time",
+        "Suffix": null,
         "LabelFont": "Arial",
         "LabelSize": 70,
         "LabelStyle": "Bold",
