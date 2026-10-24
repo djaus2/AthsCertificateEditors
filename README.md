@@ -13,7 +13,7 @@ This repository provides editors that produce json files, as Certificate Metadat
 > **Now Done!:** The certificate generation now available as WPF here.
 > Also can view existing certificate or select one from results, generate and view!
 
-> I will blog about this later but in dev mode may need to turn off `Smart App Control` in `Windows Security`.
+> ***Nb:** I will blog about this later but in dev mode may need to turn off `Smart App Control` in `Windows Security`.
 
 Purpose
 
