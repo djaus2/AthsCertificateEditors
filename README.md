@@ -11,6 +11,7 @@ This repository provides editors that produce json files, as Certificate Metadat
 <https://github.com/djaus2/AthleticsCertificateMaker>
 
 > **Now Done!:** The certificate generation now available as WPF here.
+> Also can view existing certificate or select one from results, generate and view!
 
 Purpose
 
