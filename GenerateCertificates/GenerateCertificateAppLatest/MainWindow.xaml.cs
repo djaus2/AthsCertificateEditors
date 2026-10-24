@@ -1,11 +1,16 @@
+using System.Collections.ObjectModel;
 using System;
 using System.IO;
 using System.Diagnostics;
 using System.Windows;
 using System.Text.Json;
 using Microsoft.Win32;
+using System.Linq;
 using AthleticsCertificateMaker.GenerateCertificateApp.Models;
 using AthleticsCertificateMaker.GenerateCertificateApp.Services;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Windows.Controls;
 
 namespace AthleticsCertificateMaker.GenerateCertificateApp;
 
@@ -300,6 +305,9 @@ public partial class MainWindow : Window
         => RunCertificateBuild(CertificateRunMode.BuildOnly);
 
     private void RunCertificateBuild(CertificateRunMode mode)
+        => RunCertificateBuild(mode, _resultsPath);
+
+    private void RunCertificateBuild(CertificateRunMode mode, string resultsPath)
     {
         try
         {
@@ -308,9 +316,9 @@ public partial class MainWindow : Window
                 throw new InvalidOperationException("Settings are not loaded. Use File > Get Settings from JSON.");
             }
 
-            if (string.IsNullOrWhiteSpace(_resultsPath) || !File.Exists(_resultsPath))
+            if (string.IsNullOrWhiteSpace(resultsPath) || !File.Exists(resultsPath))
             {
-                throw new FileNotFoundException("Results file not found. Use File > Select Results...", _resultsPath);
+                throw new FileNotFoundException("Results file not found. Use File > Select Results...", resultsPath);
             }
 
             if (string.IsNullOrWhiteSpace(_templatePath) || !File.Exists(_templatePath))
@@ -326,7 +334,7 @@ public partial class MainWindow : Window
             };
             Log("Loading participants...");
 
-            var participants = ParticipantCsvLoader.Load(_resultsPath, _config.ParticipantCsvDelimiter);
+            var participants = ParticipantCsvLoader.Load(resultsPath, _config.ParticipantCsvDelimiter);
             Log($"Participants loaded: {participants.Count}");
 
             var rootFolder = Path.GetDirectoryName(_settingsPath) ?? Environment.CurrentDirectory;
@@ -379,7 +387,6 @@ public partial class MainWindow : Window
         finally
         {
             //GenerateButton.IsEnabled = true;
-            
         }
     }
 
@@ -582,5 +589,301 @@ public partial class MainWindow : Window
         };
 
         aboutWindow.ShowDialog();
+    }
+
+    private void SelectGeneratedCertificate_Click(object sender, RoutedEventArgs e)
+    {
+        var preferredPngDir = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+            "source", "repos", "AthsCertificateEditors", "Output", "PNG");
+
+        var generatedDir = Path.Combine(AppContext.BaseDirectory, "GeneratedCertificates");
+        var generatedPngDir = Path.Combine(generatedDir, "PNG");
+
+        try
+        {
+            var defaultDir = Directory.Exists(preferredPngDir)
+                ? preferredPngDir
+                : (Directory.Exists(generatedPngDir) ? generatedPngDir : generatedDir);
+
+            var dialog = new OpenFileDialog
+            {
+                Title = "Select Generated Certificate",
+                InitialDirectory = Directory.Exists(defaultDir) ? defaultDir : AppContext.BaseDirectory,
+                Filter = "Certificate files|*.png;*.jpg;*.jpeg;*.bmp|All files|*.*",
+                CheckFileExists = true,
+                Multiselect = false
+            };
+
+            if (dialog.ShowDialog() != true)
+            {
+                return;
+            }
+
+            var viewer = new CertificateViewerWindow(dialog.FileName)
+            {
+                Owner = this
+            };
+            viewer.ShowDialog();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Could not open certificate preview. {ex.Message}", "Select Certificate", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void EditMenu_SubmenuOpened(object sender, RoutedEventArgs e)
+    {
+        UpdateSelectResultMenuState();
+    }
+
+    private void UpdateSelectResultMenuState()
+    {
+        if (SelectResultMenuItem == null)
+        {
+            return;
+        }
+
+        var configuredPath = GetConfiguredResultsFilePath();
+        SelectResultMenuItem.IsEnabled = !string.IsNullOrWhiteSpace(configuredPath);
+    }
+
+    private string? GetConfiguredResultsFilePath()
+    {
+        return ResultsPathTextBox?.Text?.Trim();
+    }
+
+    private const string DefaultResultHeading = "Default";
+
+    private sealed class ResultSection
+    {
+        public string Heading { get; init; } = DefaultResultHeading;
+        public List<string> Rows { get; } = new();
+    }
+
+    private void SelectResult_Click(object sender, RoutedEventArgs e)
+    {
+        var resultsFilePath = GetConfiguredResultsFilePath();
+
+        if (string.IsNullOrWhiteSpace(resultsFilePath))
+        {
+            MessageBox.Show("Results CSV/TSV path is blank.", "Select Result", MessageBoxButton.OK, MessageBoxImage.Information);
+            UpdateSelectResultMenuState();
+            return;
+        }
+
+        if (!File.Exists(resultsFilePath))
+        {
+            MessageBox.Show("Configured Results CSV/TSV file was not found.", "Select Result", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        try
+        {
+            var sections = LoadResultSections(resultsFilePath);
+            if (sections.Count == 0)
+            {
+                MessageBox.Show("No selectable results were found in that file.", "Select Result", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            ResultSection selectedSection;
+
+            if (sections.Count == 1)
+            {
+                selectedSection = sections[0];
+            }
+            else
+            {
+                var headingPicker = new HeadingSelectionWindow(sections.Select(s => s.Heading))
+                {
+                    Owner = this
+                };
+
+                if (headingPicker.ShowDialog() != true || string.IsNullOrWhiteSpace(headingPicker.SelectedHeading))
+                {
+                    return;
+                }
+
+                selectedSection = sections.First(s => string.Equals(s.Heading, headingPicker.SelectedHeading, StringComparison.Ordinal));
+            }
+
+            var resultPicker = new ResultSelectionWindow(selectedSection.Rows, selectedSection.Heading)
+            {
+                Owner = this
+            };
+
+            if (resultPicker.ShowDialog() != true || string.IsNullOrWhiteSpace(resultPicker.SelectedResult))
+            {
+                return;
+            }
+
+            var generatedAfter = DateTime.UtcNow;
+            var tempSingleResultsPath = CreateSingleResultTempFile(resultsFilePath, resultPicker.SelectedResult, selectedSection.Heading);
+            try
+            {
+                RunCertificateBuild(CertificateRunMode.BuildOnly, tempSingleResultsPath);
+            }
+            finally
+            {
+                try
+                {
+                    if (File.Exists(tempSingleResultsPath))
+                    {
+                        File.Delete(tempSingleResultsPath);
+                    }
+                }
+                catch
+                {
+                }
+            }
+
+            var rootFolder = Path.GetDirectoryName(_settingsPath) ?? Environment.CurrentDirectory;
+            var pngDir = Path.Combine(rootFolder, "Output", "PNG");
+            var generatedPath = FindNewestGeneratedCertificate(pngDir, generatedAfter);
+
+            if (string.IsNullOrWhiteSpace(generatedPath))
+            {
+                MessageBox.Show("Certificate generation completed, but no new output image was found in Output\\PNG.", "Select Result", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var viewer = new CertificateViewerWindow(generatedPath)
+            {
+                Owner = this
+            };
+            viewer.ShowDialog();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Could not select/generate certificate. {ex.Message}", "Select Result", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private static List<ResultSection> LoadResultSections(string resultsFilePath)
+    {
+        var lines = File.ReadAllLines(resultsFilePath)
+            .Select(l => l?.Trim())
+            .Where(l => !string.IsNullOrWhiteSpace(l))
+            .Cast<string>()
+            .ToList();
+
+        if (lines.Count == 0)
+        {
+            return new List<ResultSection>();
+        }
+
+        var header = lines.FirstOrDefault(IsLikelyHeader);
+        var sections = new List<ResultSection>();
+        var currentHeading = DefaultResultHeading;
+
+        foreach (var line in lines)
+        {
+            if (header != null && string.Equals(line, header, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (IsLikelyResultRow(line))
+            {
+                var section = sections.FirstOrDefault(s => string.Equals(s.Heading, currentHeading, StringComparison.Ordinal));
+                if (section == null)
+                {
+                    section = new ResultSection { Heading = currentHeading };
+                    sections.Add(section);
+                }
+
+                section.Rows.Add(line);
+                continue;
+            }
+
+            // Non-result line becomes current heading for subsequent result rows.
+            currentHeading = line;
+        }
+
+        return sections.Where(s => s.Rows.Count > 0).ToList();
+    }
+
+    private static string CreateSingleResultTempFile(string fullResultsPath, string selectedRow, string selectedHeading)
+    {
+        var lines = File.ReadAllLines(fullResultsPath)
+            .Where(l => !string.IsNullOrWhiteSpace(l))
+            .Select(l => l.Trim())
+            .ToList();
+
+        if (lines.Count == 0)
+        {
+            throw new InvalidOperationException("Results file is empty.");
+        }
+
+        var header = lines.FirstOrDefault(IsLikelyHeader) ?? lines[0];
+        var extension = Path.GetExtension(fullResultsPath);
+        if (string.IsNullOrWhiteSpace(extension))
+        {
+            extension = ".csv";
+        }
+
+        var tempPath = Path.Combine(Path.GetTempPath(), $"single_result_{Guid.NewGuid():N}{extension}");
+
+        var outputLines = new List<string> { header };
+
+        if (!string.IsNullOrWhiteSpace(selectedHeading) && !string.Equals(selectedHeading, DefaultResultHeading, StringComparison.Ordinal))
+        {
+            outputLines.Add(selectedHeading);
+        }
+
+        outputLines.Add(selectedRow);
+        File.WriteAllLines(tempPath, outputLines);
+        return tempPath;
+    }
+
+    private static string? FindNewestGeneratedCertificate(string pngFolder, DateTime generatedAfterUtc)
+    {
+        if (!Directory.Exists(pngFolder))
+        {
+            return null;
+        }
+
+        var extensions = new[] { ".png", ".jpg", ".jpeg", ".bmp" };
+
+        return Directory
+            .EnumerateFiles(pngFolder, "*.*", SearchOption.TopDirectoryOnly)
+            .Where(f => extensions.Contains(Path.GetExtension(f), StringComparer.OrdinalIgnoreCase))
+            .Where(f => File.GetLastWriteTimeUtc(f) >= generatedAfterUtc)
+            .OrderByDescending(File.GetLastWriteTimeUtc)
+            .FirstOrDefault();
+    }
+
+    private static bool IsLikelyHeader(string line)
+    {
+        if (string.IsNullOrWhiteSpace(line))
+        {
+            return false;
+        }
+
+        var hasDelimiter = line.Contains(",") || line.Contains("\t");
+        var hasKnownHeaderWord =
+            line.Contains("name", StringComparison.OrdinalIgnoreCase) ||
+            line.Contains("id", StringComparison.OrdinalIgnoreCase) ||
+            line.Contains("time", StringComparison.OrdinalIgnoreCase) ||
+            line.Contains("position", StringComparison.OrdinalIgnoreCase) ||
+            line.Contains("email", StringComparison.OrdinalIgnoreCase);
+
+        return hasDelimiter && hasKnownHeaderWord;
+    }
+
+    private static bool IsLikelyResultRow(string line)
+    {
+        if (string.IsNullOrWhiteSpace(line))
+        {
+            return false;
+        }
+
+        if (IsLikelyHeader(line))
+        {
+            return false;
+        }
+
+        return line.Contains(",") || line.Contains("\t");
     }
 }

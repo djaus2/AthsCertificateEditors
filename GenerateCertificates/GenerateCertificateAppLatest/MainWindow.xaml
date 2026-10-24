@@ -21,6 +21,10 @@
                 <Separator />
                 <MenuItem Header="E_xit" Click="ExitMenuItem_Click" />
             </MenuItem>
+            <MenuItem Header="Edit" SubmenuOpened="EditMenu_SubmenuOpened">
+                <MenuItem Header="Select Certificate" Click="SelectGeneratedCertificate_Click" />
+                <MenuItem x:Name="SelectResultMenuItem" Header="Select Result" Click="SelectResult_Click" />
+            </MenuItem>
             <MenuItem x:Name="CertificatesHeader" Header="_Certificates" IsEnabled="False">
                 <MenuItem Header="_Generate (Only)" Click="BuildCertificatesMenuItem_Click" />
                 <MenuItem Header="Generate and Se_nd (via Outlook 16)" Click="BuildAndSendCertificatesMenuItem_Click" />
