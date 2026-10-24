@@ -16,6 +16,7 @@ This repository provides editors that produce json files, as Certificate Metadat
 > ***Nb:*** I will blog about this later but in dev mode may need to turn off `Smart App Control` in `Windows Security`.  
 
 > **BIG CHANGE:** Can now adjust inapp the vertical position of Name and Distance Labels and Values.  
+> Via `Edit-Select Result` (Generates ine selected result and can tweak and regenerate.  
 > Remember to persist via File menu though.
 
 Purpose
