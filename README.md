@@ -21,7 +21,7 @@ Purpose
 - This UI app will read in a existing config file as json, edit and save, Can also create a new one.
 - Produce consistent assets and configuration files used by AthleticsCertificateMaker.
 
-> ***Latest* THREE apps have been added here that consume the generated json setup** as per the `GenerateCertificate` Powershell script in the original project.
+> ***Latest* There is one GenerateApp in the solution that consumes the generated json setup** as per the `GenerateCertificate` Powershell script in the original project. 2 others are hidden.
 
 Key features
 
