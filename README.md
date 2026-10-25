@@ -17,7 +17,7 @@ This Repository supports:
 <https://github.com/djaus2/AthleticsCertificateMaker>. All three editors produce the same json metadata for the generator, just different UIs.
 - `EditJason/FormEdit`: Simplest to use
 
-- `EditJason/FoldingEditor`: Complete structured Json fokder editor
+- `EditJason/FoldingEditor`: Complete structured Json fokding editor
 - `EditJason/TextEditor`: Raw Text Editor
 
 Latest Updates
