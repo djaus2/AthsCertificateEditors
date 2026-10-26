@@ -2,9 +2,10 @@
 
 A collection of editors and small tooling used to create and manage assets for the AthleticsCertificateMaker project. Now also includes a CertificateGenerator WPF 'GenerateXertificatesLatest` which surplants the PowerShell functionality of the original project.
 
-> This ReadMe needs a redraft *(progressing that)*.
->
-> ***Future:*** Maybe in a future vesrion combine the editors and the generator app into one?? Votes for??
+> This ReadMe needs a redraft *(progressing that)*.  
+
+> ***Future:*** Maybe in a future vesrion combine the editors and the generator app into one?? Votes for??  
+See issue #1 for feature voting.
 
 About
 ----------------------
