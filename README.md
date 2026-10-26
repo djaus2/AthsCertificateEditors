@@ -5,7 +5,7 @@ A collection of editors and small tooling used to create and manage assets for t
 > This ReadMe needs a redraft *(progressing that)*.  
 
 > ***Future:*** Maybe in a future vesrion combine the editors and the generator app into one?? Votes for??  
-See issue #1 for feature voting.
+See [Issue #1](../../issues/1) and add a 👍 reaction to vote
 
 About
 ----------------------
