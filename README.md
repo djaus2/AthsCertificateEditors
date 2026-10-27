@@ -105,7 +105,8 @@ Getting started
    - [Sample results file](results.csv)
 6. Run GenerateCerticateAppLatest
    - Load the json file created or edited in the previous step.
-   - Adjust setting and generate the sample certicates.
+   - Select the image template and results
+   - Adjust settings and generate the sample certicates.
       - Just use Outlook Save option until ready to send.
         - Nb Need Classic Outlook (16)
 
