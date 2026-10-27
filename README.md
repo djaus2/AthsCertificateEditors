@@ -96,18 +96,18 @@ Getting started
    - Set the desired editor project as startup in Visual Studio and run.
    - Or run from the CLI: dotnet run --project <path-to-editor-project>
    - Load the same json file for editing or create a new one.
-5. Run GenerateCerticateAppLatest
-   - Load the json file created or edited in the previous step.
-   - Adjust setting and generate the sample certicates.
-      - Just use Outlook Save option until ready to send.
-        - Nb Need Classic Outlook (16)
-6. Need results as a CSV or tabbed separated file.
+5. Need results as a CSV or tabbed separated file.
    - The CSV/tabbed separated file should have a header row with the following columns:
    - `Name`, `Distance`, `Position`, `Time`, `Event`, `Date`. The order of the columns does not matter, but the names must match exactly.
    - Whilst the event name is a field in the metadata it can be a a separate line in the CSV file.
    - The generator will use the event name from the metadata if it is not present in the CSV file.
    - Where multiple event titles are in the results, all results that follow will use that event name until another is read.
    - [Sample results file](results.csv)
+6. Run GenerateCerticateAppLatest
+   - Load the json file created or edited in the previous step.
+   - Adjust setting and generate the sample certicates.
+      - Just use Outlook Save option until ready to send.
+        - Nb Need Classic Outlook (16)
 
 Usage
 -----
@@ -126,9 +126,11 @@ Issues & Support
 ----------------
 
 - Open issues here and reference the AthleticsCertificateMaker project when relevant:
-  <https://github.com/djaus2/AthleticsCertificateMaker>
+  <https://github.com/djaus2/AthleticsCertificateEditors>
 
 License
+
+`
 
 -------
 See the LICENSE file in this repository for license details.
