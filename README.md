@@ -1,11 +1,13 @@
 # Athletics Certificate Generator
 
-A collection of editors and small tooling used to create and manage assets for the AthleticsCertificateMaker project. Now also includes a CertificateGenerator WPF 'GenerateXertificatesLatest` which surplants the PowerShell functionality of the original project.
+A WPF app 'GenerateXertificatesLatest` that can generate certificaes for indiviauls from rtesults of an athletics event. This surplants the PowerShell functionality of the original project. Also includes a collecion of editors for creating and editing event metadata that is used by the generator app
 
+----
 > This ReadMe needs a redraft *(progressing that)*.  
 
 > ***Future:*** Maybe in a future vesrion combine the editors and the generator app into one?? Votes for??  
 See [Issue #1](../../issues/1) and add a 👍 reaction to vote
+----
 
 About
 ----------------------
