@@ -1,4 +1,4 @@
-# AthsCertificateEditors
+# Athletics Certificate Generator
 
 A collection of editors and small tooling used to create and manage assets for the AthleticsCertificateMaker project. Now also includes a CertificateGenerator WPF 'GenerateXertificatesLatest` which surplants the PowerShell functionality of the original project.
 
