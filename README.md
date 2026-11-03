@@ -7,8 +7,17 @@ certificaes for indiviauls from results of an athletics event. This surplants th
 > This ReadMe needs a redraft *(progressing that)*.  
 >
 > ***Future:*** Maybe in a future vesrion combine the editors and the generator app into one?? Votes for??  
-See [Issue #1](../../issues/1) and add a 👍 reaction to vote
+See [Issue #1](../../issues/1) and add a 👍 reaction to vote  <-- one
 ----
+
+## Other projects in this thread
+
+- [djaus2/AthleticsCertificateMaker](https://github.com/djaus2/AthleticsCertificateMaker)
+  - PowerShell scripts for generating certificates
+- This
+  - WPF app for genearting certificates plus separate apps for configuring
+- This
+  - Generation and config in one app. Also added Edit->Results
 
 About
 ----------------------
