@@ -16,7 +16,7 @@ See [Issue #1](../../issues/1) and add a 👍 reaction to vote  <-- one
   - PowerShell scripts for generating certificates
 - This
   - WPF app for genearting certificates plus separate apps for configuring
-- This
+- [djaus2/AthsCertificatesCreator](https://github.com/djaus2/AthsCertificatesCreator)
   - Generation and config in one app. Also added Edit->Results
 
 About
